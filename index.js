@@ -15,106 +15,118 @@ class DoubleLink{
     this.head = null;
     this.tail = null;
   }
-  createNodeWithNext(val,node){
-    const result = new Node(val)
-    result.next = node;
-    return result;
-  }
-
-  createNodeWithPrev(val,node){
-    const result = new Node(val)
-    result.prev = node;
-    return result;
-  }
 
   push(val){
+    const newNode = new Node(val);
     if(!this.head){
-      this.head = new Node(val);
-      this.head.next = new Node(val);
-      this.tail = new Node(val);
-      this.tail.prev = new Node(val);
-      this.length++;
-      return this;
+      this.head = newNode;
+      this.tail = newNode;
+    }else{
+      this.tail.next = newNode;
+      newNode.prev = this.tail;
+      this.tail = newNode;
     }
-    let prevTail;
-    if(this.length === 1){
-      prevTail = this.head;
-    }
-    else{
-      prevTail = this.tail;
-    }
-    this.tail = new Node(val);
-    this.tail.prev = prevTail;
-    prevTail.next = this.tail;
     this.length++;
     return this;
   }
   pop(){
     if(!this.head) return undefined;
+    const poppedNode = this.tail;
     if(this.length === 1){
-      this.tail = null;
       this.head = null;
-      this.length--;
-      return this;
+      this.tail = null;
+    }else{
+      this.tail = poppedNode.prev;
+      this.tail.next = null;
+      poppedNode.prev = null;
     }
-    //edgy case for two variables
-    //has not figured out yet
-    // if(this.length === 2){
-    //   this.tail = this.head;
-    //   this.tail.next = null;
-    //   this.tail.prev = this.head;
-    //   this.head.next = this.tail;
-    //   this.head.prev = null;
-    //   this.length--;
-    //   return this;
-    // }
-    this.tail = this.tail.prev;
-    this.tail.next = null;
     this.length--;
-    return this;
-  }
-  unshift(val){
-    if(!this.head){
-      this.head = new Node(val);
-      this.head.next = new Node(val);
-      this.tail = new Node(val);
-      this.tail.prev = new Node(val);
-      this.length++;
-      return this;
-    }
-    if(this.length === 1){
-       this.head = new Node(val);
-       this.tail.prev = this.head;
-       this.head.next = this.tail;
-       this.length++;
-       return this;
-    }
-    const tempHead = this.head;
-    this.head = new Node(val);
-    tempHead.prev = this.head;
-    this.head.next = tempHead;
-    this.length++;
-    return this;
+    return poppedNode;
   }
   shift(){
     if(!this.head) return undefined;
+    const shiftedNode = this.head;
     if(this.length === 1){
       this.head = null;
-      this.tail = null
-      this.length--;
-      return this;
+      this.tail = null;
     }
-    //edgy case for two variables
-    //has not figured out yet
-    this.head = this.head.next;
-    this.head.prev = null;
+    else{
+      this.head = shiftedNode.next;
+      this.head.prev = null;
+      shiftedNode.next = null;
+    }
     this.length--;
-    return this;
+    return shiftedNode;
+  }
+  unshift(val){
+    const newNode = new Node(val)
+    if(!this.head){
+      this.head = newNode;
+      this.tail = newNode;
+    }
+    else{
+      this.head.prev = newNode;
+      newNode.next = this.head;
+      this.head = newNode;
+    }
+    this.length++;
+    return newNode;
+  }
+  get(index){
+    const half = Math.floor(this.length /2)
+    if(!this.head || index < 0 || index > this.length) return null;
+    if(index === 0) return this.head;
+    if(index === this.length - 1) return this.tail
+    if(index > half){
+      const recurse = (count, head) => {
+        if(index === count) return head;
+        return recurse(count +  1, head.next)
+      }
+
+      return recurse( 0 ,this.head);
+    }
+    if(index <= half){
+      const recurse = (count, tail) => {
+        if(index === count) return tail;
+        return recurse(count - 1, tail.prev)
+      }
+
+      return recurse( this.length - 1,this.tail);
+    }
+  }
+  set(index,val){
+    const currentNode = this.get(index)
+    if(!currentNode) return undefined;
+    currentNode.val = val;
+    return currentNode
   }
   insert(index,val){
     if(index < 0 || index > this.length) return undefined;
     if(index === this.length) return this.push(val)
-    
+    if(index === 0) return this.unshift(val);
+    const newNode = new Node(val);
+    const beforeNode = this.get(index - 1);
+    const afterNode = beforeNode.next;
+    beforeNode.next = newNode;
+    newNode.perv = beforeNode;
+    newNode.next = afterNode;
+    afterNode.prev = newNode;
+    this.length++;
+    return newNode;
+  }
+  remove(index){
+    if(index < 0 || index >= this.length) return undefined;
+    if(index === 0) return this.shift();
+    if(index === this.length - 1) return this.pop();
+    const poppedNode = this.get(index);
+    const beforeNode = poppedNode.prev;
+    const afterNode = poppedNode.next;
+    beforeNode.next = afterNode;
+    afterNode.prev = beforeNode;
+    poppedNode.prev = null;
+    poppedNode.next = null;
+    this.length--;
+    return poppedNode;
   }
 }
 
@@ -126,7 +138,11 @@ class DoubleLink{
 
 
 const a = new DoubleLink();
-a.push(1)
-a.push(2)
-a.shift()
+a.unshift(4)
+a.unshift(5)
+a.unshift(6)
+a.unshift(7)
+a.unshift(8)
+a.unshift(9)
+a.remove(2)
 console.log(a)
