@@ -146,3 +146,29 @@ a.unshift(8)
 a.unshift(9)
 a.remove(2)
 console.log(a)
+
+
+
+class Stack{
+  constructor(){
+    this._db = [];
+  }
+  add(val){
+    this._db.push(val);
+  }
+  remove(){
+    this._db.pop();
+  }
+  get getStack(){
+    return this._db;
+  }
+}
+
+
+const newStack = new Stack();
+
+newStack.add(5);
+newStack.add(6);
+newStack.remove();
+
+console.log(newStack.getStack)
